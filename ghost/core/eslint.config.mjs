@@ -201,6 +201,30 @@ export default tseslint.config(
         }
     },
     // ============================================================
+    // DI container code receives dependencies through the cradle;
+    // requiring a global singleton from here defeats the migration
+    // ============================================================
+    {
+        files: ['core/shared/container/**'],
+        plugins: {ghost: ghostPlugin},
+        rules: {
+            'ghost/node/no-restricted-require': ['error', [
+                {name: path.resolve(__dirname, 'core/shared/config/**'), message: 'Container code must take config via the cradle, not the global singleton.'},
+                {name: path.resolve(__dirname, 'core/shared/settings-cache/**'), message: 'Container code must take the settings cache via the cradle, not the global singleton.'},
+                {name: '@tryghost/domain-events', message: 'Container code must take domain events via the cradle, not the global dispatcher.'}
+            ]],
+            'no-restricted-imports': ['error', {
+                paths: [
+                    {name: '@tryghost/domain-events', message: 'Container code must take domain events via the cradle, not the global dispatcher.'}
+                ],
+                patterns: [
+                    {group: ['**/shared/config', '**/shared/config/**', '../config', '../config/**'], message: 'Container code must take config via the cradle, not the global singleton.'},
+                    {group: ['**/shared/settings-cache', '**/shared/settings-cache/**', '../settings-cache', '../settings-cache/**'], message: 'Container code must take the settings cache via the cradle, not the global singleton.'}
+                ]
+            }]
+        }
+    },
+    // ============================================================
     // schema.js: no created_by/updated_by columns
     // ============================================================
     {
