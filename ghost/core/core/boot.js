@@ -533,7 +533,8 @@ async function bootGhost({backend = true, frontend = true, server = true} = {}) 
             registerCoreServices(rootContainer);
             setDefaultScope(rootContainer.createScope({
                 siteConfig: buildSiteConfig(config),
-                adapterPaths: ['', config.getContentPath('adapters'), config.get('paths').internalAdaptersPath]
+                adapterPaths: ['', config.getContentPath('adapters'), config.get('paths').internalAdaptersPath],
+                adapterServiceConfig: require('./server/services/adapter-manager/config')(config)
             }));
         }
         debug('End: Load DI container');

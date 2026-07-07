@@ -17,8 +17,28 @@ import createLimitService from './server/services/create-limit-service';
 import createTiersService from './server/services/tiers/create';
 import createDonationService from './server/services/donations/create';
 import createAudienceFeedbackService from './server/services/audience-feedback/create';
+import createLinkRedirectsService from './server/services/link-redirection/create';
+import createLinkTrackingService from './server/services/link-tracking/create';
+import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('linkRedirection', {
+        lifetime: 'SCOPED',
+        factory: ({models, urlUtils, events, siteConfig, adapterManager, adapterServiceConfig}: Cradle) => {
+            let cacheAdapter = null;
+            if (siteConfig.hostSettings?.linkRedirectsPublicCache?.enabled) {
+                const {adapterClassName, adapterConfig} = resolveAdapterOptions('cache:linkRedirectsPublic', adapterServiceConfig);
+                cacheAdapter = adapterManager.getAdapter('cache:linkRedirectsPublic', adapterClassName, adapterConfig);
+            }
+            return createLinkRedirectsService({models, urlUtils, events, cacheAdapter});
+        }
+    });
+
+    container.register('linkTracking', {
+        lifetime: 'SCOPED',
+        factory: ({models, urlUtils, domainEvents, linkRedirection}: Cradle) => createLinkTrackingService({models, urlUtils, domainEvents, linkRedirection})
+    });
+
     container.register('audienceFeedback', {
         lifetime: 'SCOPED',
         factory: ({models, urlUtils}: Cradle) => createAudienceFeedbackService({
