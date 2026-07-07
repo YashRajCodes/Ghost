@@ -31,9 +31,46 @@ import createPostsPublicService from './server/services/posts-public/create';
 import createInvitesService from './server/services/invites/create';
 import createSettingsHelpers from './server/services/settings-helpers/create';
 import {createConfigView} from './shared/container/config-view';
+import createExploreService from './server/services/explore/create';
+import createEmailAddressService from './server/services/email-address/create';
+import createCustomThemeSettingsService from './server/services/custom-theme-settings/create';
+import CustomThemeSettingsCache from './shared/custom-theme-settings-cache/custom-theme-settings-cache';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('customThemeSettingsCache', {
+        lifetime: 'SCOPED',
+        factory: () => new CustomThemeSettingsCache()
+    });
+
+    container.register('customThemeSettings', {
+        lifetime: 'SCOPED',
+        factory: ({models, customThemeSettingsCache}: Cradle) => createCustomThemeSettingsService({models, customThemeSettingsCache})
+    });
+
+    container.register('emailAddress', {
+        lifetime: 'SCOPED',
+        factory: ({settingsHelpers, siteConfig, deploymentConfig}: Cradle) => createEmailAddressService({
+            settingsHelpers,
+            configView: createConfigView({siteConfig, deploymentConfig}),
+            // Bridged until labs migrates
+            labs: require('./shared/labs')
+        })
+    });
+
+    container.register('explore', {
+        lifetime: 'SCOPED',
+        factory: ({models}: Cradle) => createExploreService({
+            models,
+            // Bridged until these migrate
+            membersService: require('./server/services/members'),
+            postsService: require('./server/services/posts/posts-service-instance')(),
+            publicConfigService: require('./server/services/public-config'),
+            statsService: require('./server/services/stats'),
+            stripeService: require('./server/services/stripe')
+        })
+    });
+
     container.register('tagsPublic', {
         lifetime: 'SCOPED',
         factory: ({events, siteConfig, adapterManager, adapterServiceConfig}: Cradle) => {
