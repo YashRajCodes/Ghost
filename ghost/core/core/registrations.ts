@@ -38,9 +38,21 @@ import CustomThemeSettingsCache from './shared/custom-theme-settings-cache/custo
 import createMemberWelcomeEmailService from './server/services/member-welcome-emails/create';
 import createEmailSuppressionList from './server/services/email-suppression-list/create';
 import createRecommendationsService from './server/services/recommendations/create';
+import createMemberAttributionService from './server/services/member-attribution/create';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('memberAttribution', {
+        lifetime: 'SCOPED',
+        factory: ({models, urlUtils, settingsCache}: Cradle) => createMemberAttributionService({
+            models,
+            urlUtils,
+            settingsCache,
+            // Bridged until the url service migrates
+            urlService: require('./server/services/url')
+        })
+    });
+
     container.register('recommendations', {
         lifetime: 'SCOPED',
         factory: ({models, domainEvents, urlUtils, siteConfig, deploymentConfig, mentions, staff}: Cradle) => createRecommendationsService({
@@ -204,14 +216,14 @@ export const registerCoreServices = (container: Container): void => {
 
     container.register('staff', {
         lifetime: 'SCOPED',
-        factory: ({models, domainEvents, settingsCache, urlUtils}: Cradle) => createStaffService({
+        factory: ({models, domainEvents, settingsCache, urlUtils, memberAttribution, settingsHelpers}: Cradle) => createStaffService({
             models,
             domainEvents,
             settingsCache,
             urlUtils,
-            // Bridged until these migrate
-            memberAttribution: require('./server/services/member-attribution'),
-            settingsHelpers: require('./server/services/settings-helpers'),
+            memberAttribution,
+            settingsHelpers,
+            // Bridged until labs migrates
             labs: require('./shared/labs')
         })
     });
