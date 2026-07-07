@@ -26,9 +26,61 @@ import createMentionsService from './server/services/mentions/create';
 import createMilestonesService from './server/services/milestones/create';
 import createMembersEventsService from './server/services/members-events/create';
 import createCommentsService from './server/services/comments/create';
+import createTagsPublicService from './server/services/tags-public/create';
+import createPostsPublicService from './server/services/posts-public/create';
+import createInvitesService from './server/services/invites/create';
+import createSettingsHelpers from './server/services/settings-helpers/create';
+import {createConfigView} from './shared/container/config-view';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('tagsPublic', {
+        lifetime: 'SCOPED',
+        factory: ({events, siteConfig, adapterManager, adapterServiceConfig}: Cradle) => {
+            let cacheAdapter = null;
+            if (siteConfig.hostSettings?.tagsPublicCache?.enabled) {
+                const {adapterClassName, adapterConfig} = resolveAdapterOptions('cache:tagsPublic', adapterServiceConfig);
+                cacheAdapter = adapterManager.getAdapter('cache:tagsPublic', adapterClassName, adapterConfig);
+            }
+            return createTagsPublicService({events, cacheAdapter});
+        }
+    });
+
+    container.register('postsPublic', {
+        lifetime: 'SCOPED',
+        factory: ({events, siteConfig, adapterManager, adapterServiceConfig}: Cradle) => {
+            let cacheAdapter = null;
+            if (siteConfig.hostSettings?.postsPublicCache?.enabled) {
+                const {adapterClassName, adapterConfig} = resolveAdapterOptions('cache:postsPublic', adapterServiceConfig);
+                cacheAdapter = adapterManager.getAdapter('cache:postsPublic', adapterClassName, adapterConfig);
+            }
+            return createPostsPublicService({events, cacheAdapter});
+        }
+    });
+
+    container.register('settingsHelpers', {
+        lifetime: 'SCOPED',
+        factory: ({settingsCache, urlUtils, siteConfig, deploymentConfig, limits}: Cradle) => createSettingsHelpers({
+            settingsCache,
+            urlUtils,
+            configView: createConfigView({siteConfig, deploymentConfig}),
+            limits,
+            // Bridged until labs migrates
+            labs: require('./shared/labs')
+        })
+    });
+
+    container.register('invites', {
+        lifetime: 'SCOPED',
+        factory: ({settingsCache, settingsHelpers, urlUtils}: Cradle) => createInvitesService({
+            settingsCache,
+            settingsHelpers,
+            urlUtils,
+            // Bridged until mail migrates
+            mailService: require('./server/services/mail')
+        })
+    });
+
     container.register('membersEvents', {
         lifetime: 'SCOPED',
         factory: ({models, domainEvents, events, settingsCache, knex, deploymentConfig}: Cradle) => createMembersEventsService({
