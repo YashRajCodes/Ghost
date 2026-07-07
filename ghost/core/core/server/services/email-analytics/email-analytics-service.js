@@ -100,7 +100,7 @@ module.exports = class EmailAnalyticsService {
      * @param {object} dependencies.queries
      * @param {EmailEventProcessor} dependencies.eventProcessor
      * @param {object} dependencies.providers
-     * @param {import('@tryghost/domain-events')} dependencies.domainEvents
+     * @param {import('../../lib/common/domain-events')} dependencies.domainEvents
      * @param {import('@tryghost/prometheus-metrics')} dependencies.prometheusClient
      */
     constructor({config, settings, queries, eventProcessor, providers, domainEvents, prometheusClient}) {

@@ -10,7 +10,7 @@ import type {
 } from './automations-repository';
 
 const {knex} = require('../../data/db');
-const domainEvents = require('@tryghost/domain-events');
+const domainEvents = require('../../lib/common/domain-events');
 const labs = require('../../../shared/labs');
 const config = require('../../../shared/config');
 const lexicalLib = require('../../lib/lexical');
