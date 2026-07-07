@@ -1,22 +1,21 @@
-const AdapterManager = require('./adapter-manager');
 const getAdapterServiceConfig = require('./config');
 const resolveAdapterOptions = require('./options-resolver');
 const config = require('../../../shared/config');
+const createAdapterManager = require('./create');
 
-const adapterManager = new AdapterManager({
-    loadAdapterFromPath: require,
-    pathsToAdapters: [
-        '', // A blank path will cause us to check node_modules for the adapter
-        config.getContentPath('adapters'),
-        config.get('paths').internalAdaptersPath
-    ]
-});
+let legacyManager;
 
-adapterManager.registerAdapter('storage', require('ghost-storage-base'));
-adapterManager.registerAdapter('scheduling', require('../../adapters/scheduling/scheduling-base'));
-adapterManager.registerAdapter('sso', require('../../adapters/sso/SSOBase'));
-adapterManager.registerAdapter('cache', require('@tryghost/adapter-base-cache'));
-adapterManager.registerAdapter('redirects', require('../../adapters/redirects/RedirectsStoreBase'));
+// Legacy path for processes that never boot the container (CLI tools, bare unit tests)
+const resolveManager = () => {
+    const {hasDefaultScope, getCurrentScope} = require('../../../shared/container/current');
+    if (hasDefaultScope()) {
+        return getCurrentScope().resolve('adapterManager');
+    }
+    legacyManager = legacyManager || createAdapterManager({
+        adapterPaths: ['', config.getContentPath('adapters'), config.get('paths').internalAdaptersPath]
+    });
+    return legacyManager;
+};
 
 module.exports = {
     /**
@@ -29,13 +28,13 @@ module.exports = {
 
         const {adapterClassName, adapterConfig} = resolveAdapterOptions(name, adapterServiceConfig);
 
-        return adapterManager.getAdapter(name, adapterClassName, adapterConfig);
+        return resolveManager().getAdapter(name, adapterClassName, adapterConfig);
     },
 
     /**
      * Force recreation of all instances instead of reusing cached instances. Use when editing config file during tests.
      */
     clearCache() {
-        adapterManager.clearInstanceCache();
+        resolveManager().clearInstanceCache();
     }
 };

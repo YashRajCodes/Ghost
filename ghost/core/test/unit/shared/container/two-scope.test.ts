@@ -15,7 +15,8 @@ describe('two scopes in one process', function () {
                     client: 'better-sqlite3',
                     connection: {filename: ':memory:'}
                 }
-            }
+            },
+            adapterPaths: ['', `${__dirname}/../../../../core/server/adapters/`]
         });
     };
 
@@ -114,6 +115,30 @@ describe('two scopes in one process', function () {
 
             assert.equal(cacheA.get('title'), 'Site A');
             assert.equal(cacheB.get('title'), undefined);
+        } finally {
+            await scopeA.dispose();
+            await scopeB.dispose();
+        }
+    });
+
+    it('gives each scope its own adapter instances', async function () {
+        const root = createContainer();
+        registerCoreServices(root);
+        const scopeA = createSiteScope(root);
+        const scopeB = createSiteScope(root);
+
+        try {
+            const managerA = scopeA.resolve('adapterManager') as any;
+            const managerB = scopeB.resolve('adapterManager') as any;
+
+            const cacheA = managerA.getAdapter('cache:test', 'MemoryCache', {});
+            const cacheB = managerB.getAdapter('cache:test', 'MemoryCache', {});
+
+            assert.equal(cacheA, managerA.getAdapter('cache:test', 'MemoryCache', {}));
+            assert.notEqual(cacheA, cacheB);
+
+            cacheA.set('key', 'site-a');
+            assert.equal(await cacheB.get('key'), undefined);
         } finally {
             await scopeA.dispose();
             await scopeB.dispose();

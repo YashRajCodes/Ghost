@@ -532,7 +532,8 @@ async function bootGhost({backend = true, frontend = true, server = true} = {}) 
             const rootContainer = getRootContainer();
             registerCoreServices(rootContainer);
             setDefaultScope(rootContainer.createScope({
-                siteConfig: buildSiteConfig(config)
+                siteConfig: buildSiteConfig(config),
+                adapterPaths: ['', config.getContentPath('adapters'), config.get('paths').internalAdaptersPath]
             }));
         }
         debug('End: Load DI container');
