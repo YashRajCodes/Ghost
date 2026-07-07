@@ -50,9 +50,20 @@ import ThemeI18next from './frontend/services/theme-engine/i18next/theme-i18n';
 import RouterRegistry from './frontend/services/routing/router-registry';
 import RouterManager from './frontend/services/routing/router-manager';
 import createUrlService from './server/services/url/create';
+import createEngine from './frontend/services/theme-engine/create-engine';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('hbsEngine', {
+        lifetime: 'SCOPED',
+        factory: ({deploymentConfig}: Cradle) => createEngine({deploymentConfig})
+    });
+
+    container.register('activeThemeHolder', {
+        lifetime: 'SCOPED',
+        factory: () => ({current: undefined})
+    });
+
     container.register('urlService', {
         lifetime: 'SCOPED',
         factory: ({siteConfig, deploymentConfig, models}: Cradle) => createUrlService({siteConfig, deploymentConfig, models})
