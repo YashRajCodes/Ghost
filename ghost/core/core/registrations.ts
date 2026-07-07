@@ -45,9 +45,21 @@ import {AutomationsService} from './server/services/automations/service';
 import createStripeService from './server/services/stripe/create';
 import EmailAnalyticsServiceWrapper from './server/services/email-analytics/email-analytics-service-wrapper';
 import EmailServiceWrapper from './server/services/email-service/email-service-wrapper';
+import ThemeI18n from './frontend/services/theme-engine/i18n/theme-i18n';
+import ThemeI18next from './frontend/services/theme-engine/i18next/theme-i18n';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('themeI18n', {
+        lifetime: 'SCOPED',
+        factory: ({siteConfig}: Cradle) => new ThemeI18n({basePath: siteConfig.themesContentPath})
+    });
+
+    container.register('themeI18next', {
+        lifetime: 'SCOPED',
+        factory: ({siteConfig}: Cradle) => new ThemeI18next({basePath: siteConfig.themesContentPath})
+    });
+
     container.register('emailService', {
         lifetime: 'SCOPED',
         factory: ({models, events, settingsCache, settingsHelpers, urlUtils, limits, emailAddress, memberAttribution, linkTracking, audienceFeedback, knex, deploymentConfig, siteConfig}: Cradle) => new EmailServiceWrapper({
