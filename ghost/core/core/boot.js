@@ -526,15 +526,7 @@ async function bootGhost({backend = true, frontend = true, server = true} = {}) 
         // Repeat boots (test reboots) reuse the existing scope, matching the historic singleton lifetime.
         debug('Begin: Load DI container');
         const {getRootContainer, setDefaultScope, hasDefaultScope, getCurrentScope} = require('./shared/container/current');
-        const {buildSiteConfig} = require('./shared/config/site-config');
-        const bootSeeds = () => ({
-            siteConfig: buildSiteConfig(config),
-            adapterPaths: ['', config.getContentPath('adapters'), config.get('paths').internalAdaptersPath],
-            adapterServiceConfig: require('./server/services/adapter-manager/config')(config),
-            getMilestonesConfig: () => config.get('milestones'),
-            deploymentConfig: {get: key => config.get(key)},
-            isTestEnv: () => config.isTestEnv()
-        });
+        const bootSeeds = () => require('./boot-seeds')(config);
         if (!hasDefaultScope()) {
             const {registerCoreServices} = require('./registrations');
             const rootContainer = getRootContainer();
