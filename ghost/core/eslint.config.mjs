@@ -205,7 +205,7 @@ export default tseslint.config(
     // requiring a global singleton from here defeats the migration
     // ============================================================
     {
-        files: ['core/shared/container/**'],
+        files: ['core/shared/container/**', 'core/registrations.ts'],
         plugins: {ghost: ghostPlugin},
         rules: {
             'ghost/node/no-restricted-require': ['error', [
