@@ -25,7 +25,8 @@ describe('two scopes in one process', function () {
                 redirectCacheMaxAge: 0
             },
             adapterPaths: ['', `${__dirname}/../../../../core/server/adapters/`],
-            adapterServiceConfig: {}
+            adapterServiceConfig: {},
+            getMilestonesConfig: () => ({})
         });
     };
 
@@ -231,7 +232,7 @@ describe('two scopes in one process', function () {
         const scopeA = createSiteScope(root);
         const scopeB = createSiteScope(root);
 
-        const scopedServices = ['tiers', 'donations', 'audienceFeedback', 'linkRedirection', 'linkTracking', 'slackNotifications', 'staff', 'newsletters', 'mentions'];
+        const scopedServices = ['tiers', 'donations', 'audienceFeedback', 'linkRedirection', 'linkTracking', 'slackNotifications', 'staff', 'newsletters', 'mentions', 'milestones'];
 
         try {
             for (const name of scopedServices) {
