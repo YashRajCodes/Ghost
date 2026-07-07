@@ -35,9 +35,27 @@ import createExploreService from './server/services/explore/create';
 import createEmailAddressService from './server/services/email-address/create';
 import createCustomThemeSettingsService from './server/services/custom-theme-settings/create';
 import CustomThemeSettingsCache from './shared/custom-theme-settings-cache/custom-theme-settings-cache';
+import createMemberWelcomeEmailService from './server/services/member-welcome-emails/create';
+import createEmailSuppressionList from './server/services/email-suppression-list/create';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('memberWelcomeEmails', {
+        lifetime: 'SCOPED',
+        factory: ({models, events, settingsCache}: Cradle) => createMemberWelcomeEmailService({models, events, settingsCache})
+    });
+
+    container.register('emailSuppressionList', {
+        lifetime: 'SCOPED',
+        factory: ({models, settingsCache, siteConfig, deploymentConfig}: Cradle) => createEmailSuppressionList({
+            models,
+            settingsCache,
+            configView: createConfigView({siteConfig, deploymentConfig}),
+            // Bridged until labs migrates
+            labs: require('./shared/labs')
+        })
+    });
+
     container.register('customThemeSettingsCache', {
         lifetime: 'SCOPED',
         factory: () => new CustomThemeSettingsCache()
