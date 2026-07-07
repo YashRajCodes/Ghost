@@ -23,7 +23,8 @@ describe('two scopes in one process', function () {
                 assetBaseUrls: {},
                 protectedSlugs: ['ghost'],
                 redirectCacheMaxAge: 0,
-                publicContentPath: '/tmp/ghost-test-public'
+                publicContentPath: '/tmp/ghost-test-public',
+                dataContentPath: '/tmp/ghost-test-data'
             },
             adapterPaths: ['', `${__dirname}/../../../../core/server/adapters/`],
             adapterServiceConfig: {},
@@ -235,7 +236,7 @@ describe('two scopes in one process', function () {
         const scopeA = createSiteScope(root);
         const scopeB = createSiteScope(root);
 
-        const scopedServices = ['tiers', 'donations', 'audienceFeedback', 'linkRedirection', 'linkTracking', 'slackNotifications', 'staff', 'newsletters', 'mentions', 'milestones', 'membersEvents', 'comments', 'tagsPublic', 'postsPublic', 'invites', 'settingsHelpers', 'explore', 'emailAddress', 'customThemeSettingsCache', 'customThemeSettings', 'memberWelcomeEmails', 'emailSuppressionList', 'recommendations', 'memberAttribution', 'stats', 'gifts', 'automations', 'stripe', 'emailAnalytics'];
+        const scopedServices = ['tiers', 'donations', 'audienceFeedback', 'linkRedirection', 'linkTracking', 'slackNotifications', 'staff', 'newsletters', 'mentions', 'milestones', 'membersEvents', 'comments', 'tagsPublic', 'postsPublic', 'invites', 'settingsHelpers', 'explore', 'emailAddress', 'customThemeSettingsCache', 'customThemeSettings', 'memberWelcomeEmails', 'emailSuppressionList', 'recommendations', 'memberAttribution', 'stats', 'gifts', 'automations', 'stripe', 'emailAnalytics', 'emailService'];
 
         try {
             for (const name of scopedServices) {

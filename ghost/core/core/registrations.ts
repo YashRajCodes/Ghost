@@ -44,9 +44,34 @@ import createGiftService from './server/services/gifts/create';
 import {AutomationsService} from './server/services/automations/service';
 import createStripeService from './server/services/stripe/create';
 import EmailAnalyticsServiceWrapper from './server/services/email-analytics/email-analytics-service-wrapper';
+import EmailServiceWrapper from './server/services/email-service/email-service-wrapper';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('emailService', {
+        lifetime: 'SCOPED',
+        factory: ({models, events, settingsCache, settingsHelpers, urlUtils, limits, emailAddress, memberAttribution, linkTracking, audienceFeedback, knex, deploymentConfig, siteConfig}: Cradle) => new EmailServiceWrapper({
+            models,
+            events,
+            settingsCache,
+            settingsHelpers,
+            urlUtils,
+            limits,
+            emailAddress,
+            memberAttribution,
+            linkTracking,
+            audienceFeedback,
+            knex,
+            deploymentConfig,
+            siteConfig,
+            // Bridged until these migrate
+            urlService: require('./server/services/url'),
+            jobsService: require('./server/services/jobs'),
+            membersService: require('./server/services/members'),
+            labs: require('./shared/labs')
+        })
+    });
+
     container.register('emailAnalytics', {
         lifetime: 'SCOPED',
         factory: ({models, domainEvents, settingsCache, emailSuppressionList, deploymentConfig, knex}: Cradle) => new EmailAnalyticsServiceWrapper({
