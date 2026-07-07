@@ -219,7 +219,7 @@ export default tseslint.config(
                 ],
                 patterns: [
                     {group: ['**/shared/config', '**/shared/config/**', '../config', '../config/**'], message: 'Container code must take config via the cradle, not the global singleton.'},
-                    {group: ['**/shared/settings-cache', '**/shared/settings-cache/**', '../settings-cache', '../settings-cache/**'], message: 'Container code must take the settings cache via the cradle, not the global singleton.'}
+                    {regex: '(shared|\\.\\.)/settings-cache(/index(\\.js)?)?$', message: 'Container code must take the settings cache via the cradle, not the global singleton.'}
                 ]
             }]
         }
