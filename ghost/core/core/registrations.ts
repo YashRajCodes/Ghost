@@ -19,9 +19,15 @@ import createDonationService from './server/services/donations/create';
 import createAudienceFeedbackService from './server/services/audience-feedback/create';
 import createLinkRedirectsService from './server/services/link-redirection/create';
 import createLinkTrackingService from './server/services/link-tracking/create';
+import createSlackNotificationsService from './server/services/slack-notifications/create';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('slackNotifications', {
+        lifetime: 'SCOPED',
+        factory: ({domainEvents, urlUtils, siteConfig}: Cradle) => createSlackNotificationsService({domainEvents, urlUtils, siteConfig})
+    });
+
     container.register('linkRedirection', {
         lifetime: 'SCOPED',
         factory: ({models, urlUtils, events, siteConfig, adapterManager, adapterServiceConfig}: Cradle) => {
