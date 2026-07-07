@@ -43,9 +43,25 @@ import createStatsService from './server/services/stats/create';
 import createGiftService from './server/services/gifts/create';
 import {AutomationsService} from './server/services/automations/service';
 import createStripeService from './server/services/stripe/create';
+import EmailAnalyticsServiceWrapper from './server/services/email-analytics/email-analytics-service-wrapper';
 import resolveAdapterOptions from './server/services/adapter-manager/options-resolver';
 
 export const registerCoreServices = (container: Container): void => {
+    container.register('emailAnalytics', {
+        lifetime: 'SCOPED',
+        factory: ({models, domainEvents, settingsCache, emailSuppressionList, deploymentConfig, knex}: Cradle) => new EmailAnalyticsServiceWrapper({
+            models,
+            domainEvents,
+            settingsCache,
+            emailSuppressionList,
+            deploymentConfig,
+            knex,
+            // Bridged until these migrate
+            labs: require('./shared/labs'),
+            membersService: require('./server/services/members')
+        })
+    });
+
     container.register('stripe', {
         lifetime: 'SCOPED',
         factory: ({models, settingsCache, settingsHelpers, urlUtils, events, donations, gifts, staff, deploymentConfig, isTestEnv}: Cradle) => createStripeService({

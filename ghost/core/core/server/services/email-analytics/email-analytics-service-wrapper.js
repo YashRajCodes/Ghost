@@ -1,9 +1,16 @@
 const logging = require('@tryghost/logging');
 const metrics = require('@tryghost/metrics');
-const config = require('../../../shared/config');
 
 class EmailAnalyticsServiceWrapper {
     #restoredSchedule = false;
+    #deps;
+
+    /**
+     * @param {object} deps - see init() for what each is used for
+     */
+    constructor(deps) {
+        this.#deps = deps;
+    }
 
     init() {
         if (this.service) {
@@ -14,16 +21,13 @@ class EmailAnalyticsServiceWrapper {
         const EmailEventStorage = require('../email-service/email-event-storage');
         const EmailEventProcessor = require('../email-service/email-event-processor');
         const MailgunProvider = require('./email-analytics-provider-mailgun');
-        const {EmailRecipientFailure, EmailSpamComplaintEvent, Email} = require('../../models');
         const StartEmailAnalyticsJobEvent = require('./events/start-email-analytics-job-event');
-        const domainEvents = require('../../lib/common/domain-events');
-        const settings = require('../../../shared/settings-cache');
-        const labs = require('../../../shared/labs');
-        const db = require('../../data/db');
         const queries = require('./lib/queries');
-        const membersService = require('../members');
+
+        const {models, domainEvents, settingsCache: settings, labs, membersService, emailSuppressionList, deploymentConfig: config, knex} = this.#deps;
+        const {EmailRecipientFailure, EmailSpamComplaintEvent, Email} = models;
+        const db = {knex};
         const membersRepository = membersService.api.members;
-        const emailSuppressionList = require('../email-suppression-list');
         const prometheusClient = require('../../../shared/prometheus-client');
 
         this.eventStorage = new EmailEventStorage({
@@ -87,7 +91,7 @@ class EmailAnalyticsServiceWrapper {
         const apiPercent = totalDurationMs > 0 ? Math.round((apiPollingTimeMs / totalDurationMs) * 100) : 0;
         const processingPercent = totalDurationMs > 0 ? Math.round((processingTimeMs / totalDurationMs) * 100) : 0;
         const aggregationPercent = totalDurationMs > 0 ? Math.round((aggregationTimeMs / totalDurationMs) * 100) : 0;
-        const batchMode = config.get('emailAnalytics:batchProcessing') ? 'BATCHED' : 'SEQUENTIAL';
+        const batchMode = this.#deps.deploymentConfig.get('emailAnalytics:batchProcessing') ? 'BATCHED' : 'SEQUENTIAL';
 
         const logMessage = [
             `[EmailAnalytics] Job complete: ${jobType}`,
@@ -101,8 +105,8 @@ class EmailAnalyticsServiceWrapper {
 
         // We're only concerned with open throughput as this is displayed to users and is most sensitive to being up to date
         if (jobType === 'latest-opened') {
-            const openThroughputEnabled = config.get('emailAnalytics:metrics:openThroughput:enabled');
-            const openThroughputThreshold = config.get('emailAnalytics:metrics:openThroughput:threshold') || 0;
+            const openThroughputEnabled = this.#deps.deploymentConfig.get('emailAnalytics:metrics:openThroughput:enabled');
+            const openThroughputThreshold = this.#deps.deploymentConfig.get('emailAnalytics:metrics:openThroughput:threshold') || 0;
             if (openThroughputEnabled && eventCount >= openThroughputThreshold) {
                 metrics.metric('email-analytics-open-throughput', {
                     value: throughput,
@@ -116,7 +120,7 @@ class EmailAnalyticsServiceWrapper {
     async fetchLatestOpenedEvents({maxEvents} = {maxEvents: Infinity}) {
         const beginTimestamp = await this.service.getLastOpenedEventTimestamp();
         const lagMinutes = (Date.now() - beginTimestamp.getTime()) / 60000;
-        const lagThreshold = config.get('emailAnalytics:openedJobLagWarningMinutes');
+        const lagThreshold = this.#deps.deploymentConfig.get('emailAnalytics:openedJobLagWarningMinutes');
 
         // NOTE: We only update the begin timestamp when we process events, so there's cases where we can have a false positive
         //  - Ghost or Mailgun outages

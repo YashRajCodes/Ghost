@@ -235,7 +235,7 @@ describe('two scopes in one process', function () {
         const scopeA = createSiteScope(root);
         const scopeB = createSiteScope(root);
 
-        const scopedServices = ['tiers', 'donations', 'audienceFeedback', 'linkRedirection', 'linkTracking', 'slackNotifications', 'staff', 'newsletters', 'mentions', 'milestones', 'membersEvents', 'comments', 'tagsPublic', 'postsPublic', 'invites', 'settingsHelpers', 'explore', 'emailAddress', 'customThemeSettingsCache', 'customThemeSettings', 'memberWelcomeEmails', 'emailSuppressionList', 'recommendations', 'memberAttribution', 'stats', 'gifts', 'automations', 'stripe'];
+        const scopedServices = ['tiers', 'donations', 'audienceFeedback', 'linkRedirection', 'linkTracking', 'slackNotifications', 'staff', 'newsletters', 'mentions', 'milestones', 'membersEvents', 'comments', 'tagsPublic', 'postsPublic', 'invites', 'settingsHelpers', 'explore', 'emailAddress', 'customThemeSettingsCache', 'customThemeSettings', 'memberWelcomeEmails', 'emailSuppressionList', 'recommendations', 'memberAttribution', 'stats', 'gifts', 'automations', 'stripe', 'emailAnalytics'];
 
         try {
             for (const name of scopedServices) {
