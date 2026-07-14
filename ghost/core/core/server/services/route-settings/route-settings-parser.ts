@@ -32,6 +32,14 @@ const VALID_SHORTFORM_RESOURCES = ['tag', 'page', 'post', 'author'] as const;
 const VALID_LONGFORM_RESOURCES = ['tags', 'posts', 'pages', 'authors'] as const;
 const RESERVED_DATA_KEYS = ['resource', 'type', 'limit', 'order', 'include', 'filter', 'status', 'visibility', 'slug', 'redirect'];
 
+// YAML parses a bare `filter:` as null and authors commonly quote numeric scalars
+// (`limit: "100"`); the legacy validator accepted both, so treat an explicitly empty
+// value as unset and coerce digit-only limit strings to numbers.
+const OptionalStringField = z.string().nullish().transform(v => v ?? undefined);
+const OptionalBooleanField = z.boolean().nullish().transform(v => v ?? undefined);
+const LimitField = z.union([z.number(), z.literal('all'), z.string().regex(/^\d+$/).transform(Number)])
+    .nullish().transform(v => v ?? undefined);
+
 const DataShortFormSchema = z.string().superRefine((v, ctx) => {
     if (!/^[a-zA-Z0-9_]+\.[a-zA-Z0-9_-]+$/.test(v)) {
         ctx.addIssue({code: 'custom', message: tpl(messages.validationError, {at: v, reason: 'Incorrect Format. Please use e.g. tag.recipes'})});
@@ -57,7 +65,7 @@ const DataBrowseEntrySchema = z.object({
     type: z.literal('browse'),
     resource: z.enum(VALID_LONGFORM_RESOURCES),
     filter: z.string().optional(),
-    limit: z.union([z.number(), z.literal('all')]).optional(),
+    limit: LimitField,
     order: z.string().optional(),
     include: z.string().optional(),
     fields: z.string().optional(),
@@ -139,7 +147,7 @@ function parseRouteData(data: unknown): RouteData {
     return parsed;
 }
 
-const TemplateField = z.union([z.string(), z.array(z.string())]).optional().default([])
+const TemplateField = z.union([z.string(), z.array(z.string())]).nullish().default([])
     .transform(v => {
         if (!v || (Array.isArray(v) && v.length === 0)) {
             return [];
@@ -151,11 +159,11 @@ const RouteObjectSchema = z.object({
     controller: z.literal('channel').optional(),
     template: TemplateField,
     data: z.unknown().optional(),
-    content_type: z.string().optional(),
-    filter: z.string().optional(),
-    order: z.string().optional(),
-    limit: z.union([z.number(), z.literal('all')]).optional(),
-    rss: z.boolean().optional()
+    content_type: OptionalStringField,
+    filter: OptionalStringField,
+    order: OptionalStringField,
+    limit: LimitField,
+    rss: OptionalBooleanField
 }).transform((val): Omit<Route, 'path'> => {
     const templates = val.template;
     const data = val.data !== undefined ? parseRouteData(val.data) : undefined;
@@ -203,10 +211,10 @@ const RawCollectionValueSchema = z.object({
     permalink: z.string({message: 'Please define a permalink route.'}).optional(),
     template: TemplateField,
     data: z.unknown().optional(),
-    filter: z.string().optional(),
-    order: z.string().optional(),
-    limit: z.union([z.number(), z.literal('all')]).optional(),
-    rss: z.boolean().optional()
+    filter: OptionalStringField,
+    order: OptionalStringField,
+    limit: LimitField,
+    rss: OptionalBooleanField
 }).transform((val): Omit<CollectionConfig, 'path'> => {
     const data = val.data !== undefined ? parseRouteData(val.data) : undefined;
     const collection: Omit<CollectionConfig, 'path'> = {
