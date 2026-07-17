@@ -109,8 +109,8 @@ catalogs:
       specifier: 5.101.2
       version: 5.101.2
     '@tanstack/react-virtual':
-      specifier: 3.14.5
-      version: 3.14.5
+      specifier: 3.14.6
+      version: 3.14.6
     '@testing-library/jest-dom':
       specifier: 6.9.1
       version: 6.9.1
@@ -462,8 +462,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-gFsvptlcVXY90ntXWh9ANUP1/LYyeqXjWoDGw6BCfOY=
 
-pnpmfileChecksum: sha256-HFDJRDXPJung3QA+SJGLFvCaWudv3AAtCmD3O4SpXLY=
-
 importers:
 
   .:
@@ -615,7 +613,7 @@ importers:
         version: 2.0.0
       '@tanstack/react-virtual':
         specifier: 'catalog:'
-        version: 3.14.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 3.14.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tryghost/activitypub':
         specifier: workspace:*
         version: link:../activitypub
@@ -9686,8 +9684,17 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  '@tanstack/react-virtual@3.14.6':
+    resolution: {integrity: sha512-4+Uq8m0/gzO4kMCHUEpTtGX1RnONK0C+g88b2ltwPMWUBiaVarBuWKoPJaz7gj1cKCVRAdyu+U8GcKhwCc2beA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   '@tanstack/virtual-core@3.17.3':
     resolution: {integrity: sha512-8Np/TFELpI0ySuJoVmjvOrQYXH/8sTX0Biv9szhFhY39xOdAAY+smrMxjxOum/ux3eM8MUJQsEJ0/R0UpvC8dw==}
+
+  '@tanstack/virtual-core@3.17.4':
+    resolution: {integrity: sha512-nGm5KteqxasUdThLc2izl6dHUqLv0LQj7Nuyo5gYalTPf/U8a9ermvsl7reT+6ioBW1l8WfpP/mcU338nLXpqw==}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -30376,13 +30383,15 @@ snapshots:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
 
-  '@tanstack/react-virtual@3.14.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-virtual@3.14.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/virtual-core': 3.17.3
+      '@tanstack/virtual-core': 3.17.4
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
   '@tanstack/virtual-core@3.17.3': {}
+
+  '@tanstack/virtual-core@3.17.4': {}
 
   '@testing-library/dom@10.4.1':
     dependencies:
