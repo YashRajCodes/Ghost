@@ -271,8 +271,8 @@ catalogs:
       specifier: 0.5.3
       version: 0.5.3
     eslint-plugin-tailwindcss:
-      specifier: 4.0.4
-      version: 4.0.4
+      specifier: 4.2.0
+      version: 4.2.0
     fs-extra:
       specifier: 11.3.6
       version: 11.3.6
@@ -461,8 +461,6 @@ overrides:
   perf-primitives: ^0.0.6
 
 packageExtensionsChecksum: sha256-gFsvptlcVXY90ntXWh9ANUP1/LYyeqXjWoDGw6BCfOY=
-
-pnpmfileChecksum: sha256-HFDJRDXPJung3QA+SJGLFvCaWudv3AAtCmD3O4SpXLY=
 
 importers:
 
@@ -751,7 +749,7 @@ importers:
         version: 0.5.3(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-tailwindcss:
         specifier: 'catalog:'
-        version: 4.0.4(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.2.2)
+        version: 4.2.0(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.2.2)
       globals:
         specifier: 'catalog:'
         version: 17.7.0
@@ -1880,7 +1878,7 @@ importers:
         version: 10.4.6(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.31)(prettier@3.9.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       eslint-plugin-tailwindcss:
         specifier: 'catalog:'
-        version: 4.0.4(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.2.2)
+        version: 4.2.0(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.2.2)
       globals:
         specifier: 'catalog:'
         version: 17.7.0
@@ -15176,10 +15174,11 @@ packages:
     peerDependencies:
       tailwindcss: ^3.4.0 || ^4.0.0
 
-  eslint-plugin-tailwindcss@4.0.4:
-    resolution: {integrity: sha512-cN43gHInx32ZwymgBPz6wQcH/QWEn/1fXvu51KfwFZMTGimviXcn61CPR8NY4mpstgNkbCqN9UVCspr+YqpV9w==}
+  eslint-plugin-tailwindcss@4.2.0:
+    resolution: {integrity: sha512-TSygSjEL54Iks7K29FjvM9Lp03cpsYtbh3LJHnj/84FxCOYfLFuvQ+GioHOxgq19WGN5NbHPuvFDz/igIOEtbg==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
+      eslint: ^9.0.0 || ^10.0.0
       tailwindcss: ^4.0.0
       typescript: '*'
     peerDependenciesMeta:
@@ -38438,9 +38437,10 @@ snapshots:
       tailwind-api-utils: 1.0.3(tailwindcss@3.4.19(tsx@4.23.0)(yaml@2.9.0))
       tailwindcss: 3.4.19(tsx@4.23.0)(yaml@2.9.0)
 
-  eslint-plugin-tailwindcss@4.0.4(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.2.2):
+  eslint-plugin-tailwindcss@4.2.0(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.2.2):
     dependencies:
       '@typescript-eslint/utils': 8.62.1(@typescript/typescript6@6.0.2)(eslint@9.39.4(jiti@2.7.0))
+      eslint: 9.39.4(jiti@2.7.0)
       postcss: 8.5.16
       postcss-nested: 7.0.2(postcss@8.5.16)
       synckit: 0.11.13
@@ -38449,7 +38449,6 @@ snapshots:
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
-      - eslint
       - supports-color
 
   eslint-plugin-unicorn@42.0.0(eslint@9.39.4(jiti@2.7.0)):
