@@ -44,6 +44,7 @@ import { EDITOR_REQUEST_OPTIONS } from '@/editor/request-options';
 import { postPreviewModal, postPreviewSaveFailed } from '@tryghost/test-data/selectors/editor';
 import { useEditorSettings } from '@/editor/use-editor-settings';
 import { FullscreenDialog } from '@/editor/fullscreen-dialog';
+import type { PublishFlowPost } from '@/editor/publish/flow-post';
 import { BrowserPreview } from './browser-preview';
 import { EmailPreview } from './email-preview';
 import { EmailSubject, type EmailSubjectEditor } from './email-subject';
@@ -66,11 +67,14 @@ interface SegmentOption {
 export interface PostPreviewModalProps {
   subjectEditor?: EmailSubjectEditor;
   open: boolean;
+  animate?: boolean;
   postId: string;
   /** The post's public preview URL (`/p/:uuid/`), empty until the post has a uuid. */
   previewUrl: string;
   /** Pages have no email preview. */
   isPost?: boolean;
+  /** The saved post, whose email is checked against the size inboxes clip at. */
+  post?: PublishFlowPost;
   /** The post's own newsletter, preselected in the email preview. */
   newsletterSlug?: string;
   /** Awaited before the preview renders, so the caller can save the draft first. */
@@ -85,9 +89,11 @@ export interface PostPreviewModalProps {
 export function PostPreviewModal({
   subjectEditor,
   open,
+  animate = true,
   postId,
   previewUrl,
   isPost = true,
+  post,
   newsletterSlug,
   onBeforeOpen,
   onPublish,
@@ -279,6 +285,11 @@ export function PostPreviewModal({
   // list, because that is the newsletter its email would be rendered for.
   const selectedNewsletterSlug = pickedNewsletterSlug ?? newsletterSlug ?? newsletters[0]?.slug;
 
+  const retryPreparation = () => {
+    preparePromise.current = null;
+    setPrepareState('preparing');
+  };
+
   const retryNewsletterLookup = () => {
     if (activeNewslettersError) {
       void refetchActiveNewsletters();
@@ -314,6 +325,7 @@ export function PostPreviewModal({
 
   return (
     <FullscreenDialog
+      animate={animate}
       aria-describedby={undefined}
       data-testid={postPreviewModal}
       headerActions={
@@ -341,7 +353,7 @@ export function PostPreviewModal({
             Close
           </Button>
           {onPublish ? (
-            <Button disabled={publishDisabled} onClick={onPublish}>
+            <Button className="w-20 shrink-0" disabled={publishDisabled} onClick={onPublish}>
               Publish
             </Button>
           ) : null}
@@ -474,26 +486,14 @@ export function PostPreviewModal({
                 {emailAvailable && subjectEditor && (
                   <Stack className="text-left" gap="xs">
                     <span className="text-sm text-muted-foreground">Email subject</span>
+                    {/* The failure is the preview's own save, and retrying it carries the subject. */}
                     <EmailSubject
-                      editor={{
-                        ...subjectEditor,
-                        onSave: async () => {
-                          await subjectEditor.onSave();
-                          preparePromise.current = null;
-                          setPrepareState('preparing');
-                        },
-                      }}
+                      editor={{ ...subjectEditor, onCommit: retryPreparation }}
+                      ownsSaveError={false}
                     />
                   </Stack>
                 )}
-                <Button
-                  className="self-center"
-                  variant="outline"
-                  onClick={() => {
-                    preparePromise.current = null;
-                    setPrepareState('preparing');
-                  }}
-                >
+                <Button className="self-center" variant="outline" onClick={retryPreparation}>
                   Retry
                 </Button>
               </Stack>
@@ -515,6 +515,7 @@ export function PostPreviewModal({
             newsletterMissing={postNewsletterDeleted && selectedNewsletterSlug === newsletterSlug}
             newsletters={newsletters}
             newsletterSlug={selectedNewsletterSlug}
+            post={post}
             postId={postId}
             subjectEditor={subjectEditor}
             tierName={selectedTier?.name}
@@ -522,7 +523,12 @@ export function PostPreviewModal({
             onRetryNewsletterLookup={retryNewsletterLookup}
           />
         ) : (
-          <BrowserPreview audience={audience} device={device} previewUrl={previewUrl} />
+          <BrowserPreview
+            audience={audience}
+            device={device}
+            previewUrl={previewUrl}
+            onEscape={() => onOpenChange(false)}
+          />
         )}
       </Inline>
     </FullscreenDialog>
